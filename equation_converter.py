@@ -7,6 +7,7 @@ import argparse
 import sys
 from summand_class import Summand
 
+
 def is_input_readable(f):
     try:
         open(f, 'r')
@@ -15,15 +16,36 @@ def is_input_readable(f):
         sys.exit(-1)
 
 
+def are_parenthese_matched(eq):
+    '''
+    check if parentheses are in pair, ( is before )
+    :param eq: legal string
+    :return: True/False
+    '''
+    count = 0
+    for c in eq:
+        if c == "(":
+            count += 1
+        elif c == ")":
+            count -= 1
+        if count < 0:
+            return False
+    return count == 0
+
+
 def is_equation_legal(eq):
     '''
-    legal equation contains only one '='
+    legal equation contains only one '=', () must be in pair
     :param eq: equation presented in string
     :return: True/False
     '''
     if type(eq) is not str:
         return None
-    return eq.count('=') == 1
+    if eq.count('=') != 1:
+        return False
+    if not are_parenthese_matched(eq):
+        return False
+    return True
 
 
 def parse_summands(s):

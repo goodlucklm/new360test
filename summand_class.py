@@ -12,9 +12,9 @@ class Summand:
         m = re.match(pattern, self.original_form)
         if not m:
             raise ValueError('Illegal summand: '+self.original_form)
-        self.sign = m.groups()[0]
+        self.sign = '+' if not m.groups()[0] else m.groups()[0]
         self.coefficient = 1.0 if not m.groups()[2] else float(m.groups()[2])
-        self.operand = m.groups()[3]
+        self.operand = '' if not m.groups()[3] else m.groups()[3]
 
     def get_original_form(self):
         return self.original_form
