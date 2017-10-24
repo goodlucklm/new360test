@@ -43,7 +43,13 @@ def is_equation_legal(eq):
         return None
     if eq.count('=') != 1:
         return False
-    if not are_parenthese_matched(eq):
+
+    i = eq.find('=')
+    left_side = eq[0:i]
+    right_side = eq[i:]
+    if not are_parenthese_matched(left_side):
+        return False
+    if not are_parenthese_matched(right_side):
         return False
     return True
 
