@@ -8,10 +8,11 @@ class Summand:
         :param s: the string contains a summand
         '''
         self.original_form = s.strip()
-        pattern = '^([+-])?( *)(\d+|\d+\.\d+)?([a-zA-z]+(\^\d*)?)?$'
+        pattern = '^([+-])?( *)(\d+|\d+\.\d+)?(([a-zA-z]{1}(\^\d+)?)*)$'
         m = re.match(pattern, self.original_form)
         if not m:
             raise ValueError('Illegal summand: '+self.original_form)
+        print m.groups()
         self.sign = '+' if not m.groups()[0] else m.groups()[0]
         self.coefficient = 1.0 if not m.groups()[2] else float(m.groups()[2])
         self.operand = '' if not m.groups()[3] else m.groups()[3]
