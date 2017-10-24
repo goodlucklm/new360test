@@ -12,7 +12,6 @@ class Summand:
         m = re.match(pattern, self.original_form)
         if not m:
             raise ValueError('Illegal summand: '+self.original_form)
-        print m.groups()
         self.sign = '+' if not m.groups()[0] else m.groups()[0]
         self.coefficient = 1.0 if not m.groups()[2] else float(m.groups()[2])
         self.operand = '' if not m.groups()[3] else m.groups()[3]
@@ -23,7 +22,7 @@ class Summand:
     def get_sign(self):
         return self.sign
 
-    def flip_self(self):
+    def flip_sign(self):
         if self.sign is '+':
             self.sign = '-'
         elif self.sign is '-':

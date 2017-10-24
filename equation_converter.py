@@ -81,6 +81,58 @@ def parse_summands(s):
     return summands
 
 
+def flat_parentheses(super_summand):
+    '''
+    remove one pair of parentheses by changing +/- accordingly
+    does not support (x+y)^2
+    :param super_summand: summands from one side of t'='
+    :return: string with the most inner pair removed and sign changed
+    '''
+    # find the first closing parenthese
+    closing_parenthese_index = 0
+    closing_parenthese_index = super_summand.find(')', closing_parenthese_index)
+    print 'closing parenthese is at', closing_parenthese_index
+
+    # find the open parenthese that paired with the first closing parenthese
+    i = closing_parenthese_index
+    while i >= 0 and super_summand[i] != '(':
+            i -= 1
+    open_parenthese_index = i
+    print 'open parenthese is at', i
+
+    # find the sign before open parenthese
+    while i >= 0 and super_summand[i] not in ['+', '-']:
+        i -= 1
+    print i, super_summand[i]
+    if i < 0 and super_summand[i] not in ['+', '-']:
+        sign = '+'
+        inner_summand = super_summand[:closing_parenthese_index+1]
+        sign_index = 0
+    else:
+        sign = super_summand[i]
+        inner_summand = super_summand[i:closing_parenthese_index+1]
+        sign_index = i
+    print 'sign is ', sign
+    print 'inner summand is', inner_summand
+
+    # flip the signs of each summand base on the sign before open parenthese
+    if sign == '-':
+        starting = inner_summand.find('(')
+        for i in range(starting, len(inner_summand)-1): # the last charactor is not going to be +/-
+            if inner_summand[i] == '+':
+                inner_summand = inner_summand[:i] + '-' + inner_summand[i+1:]
+            elif inner_summand[i] == '-':
+                inner_summand = inner_summand[:i] + '+' + inner_summand[i+1:]
+
+    # remove parentheses
+    inner_summand = inner_summand.replace('(', '', 1)
+    inner_summand = inner_summand.replace(')', '', 1)
+
+    return super_summand[:sign_index] + inner_summand + super_summand[closing_parenthese_index+1:]
+
+
+
+
 def parse_one_equation(eq):
     '''
     transform 1 equation into canonical form
@@ -96,6 +148,13 @@ def parse_one_equation(eq):
 
 
 if __name__ == '__main__':
+    description = \
+    """
+    To enter interactive mode, invoke with no arguments
+    Restrictions:
+    1. do not support (x + y)^2
+    2. do not support (+x - y) or (-x - z), the first summand in parentheses can not contain a sign
+    """
     parser = argparse.ArgumentParser(description='To enter interactive mode, invoke with no arguments',
                                      prog='equation_converter')
     parser.add_argument('-f', '--file', type=str, dest='filename')

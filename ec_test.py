@@ -15,13 +15,22 @@ class TestEquationConverter(unittest.TestCase):
         results = []
         for s in summands:
             results.append(s.get_original_form())
-            print results
         self.assertEqual(results, ['+2x', '+3y', '+4z', '-6m'])
         summands = ec.parse_summands('x^2 + 3.5xy^76 +y - 4.78xyz^100-7.88m^78')
         results = []
         for s in summands:
             results.append(s.get_original_form())
         self.assertEqual(results, ['+x^2', '+ 3.5xy^76', '+y', '- 4.78xyz^100', '-7.88m^78'])
+
+    def test_flat_parentheses_no_starting_sign(self):
+        s = '(5.6x-(7.5y-4.6z^7))'
+        s1 = ec.flat_parentheses(s)
+        self.assertEqual(s1, '(5.6x-7.5y+4.6z^7)')
+        s2 = ec.flat_parentheses(s1)
+        self.assertEqual(s2, '5.6x-7.5y+4.6z^7')
+
+
+
 
 
 if __name__ == '__main__':

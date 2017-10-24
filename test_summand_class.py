@@ -6,7 +6,7 @@ class TestEquationConverter(unittest.TestCase):
     def test_normal(self):
         summand = summand_class.Summand('+3.76xyz^3')
         self.assertEqual(summand.get_sign(), '+')
-        summand.flip_self()
+        summand.flip_sign()
         self.assertEqual(summand.get_sign(), '-')
         self.assertEqual(summand.get_coefficient(), 3.76)
         self.assertEqual(summand.get_operand(), 'xyz^3')
@@ -15,7 +15,7 @@ class TestEquationConverter(unittest.TestCase):
     def test_no_coefficient(self):
         summand = summand_class.Summand('-   xy^7')
         self.assertEqual(summand.get_sign(), '-')
-        summand.flip_self()
+        summand.flip_sign()
         self.assertEqual(summand.get_sign(), '+')
         self.assertEqual(summand.get_coefficient(), 1.0)
         self.assertEqual(summand.get_operand(), 'xy^7')
@@ -24,7 +24,7 @@ class TestEquationConverter(unittest.TestCase):
     def test_constant(self):
         summand = summand_class.Summand('-6.78')
         self.assertEqual(summand.get_sign(), '-')
-        summand.flip_self()
+        summand.flip_sign()
         self.assertEqual(summand.get_sign(), '+')
         self.assertEqual(summand.get_coefficient(), 6.78)
         self.assertEqual(summand.get_operand(), '')
@@ -33,7 +33,7 @@ class TestEquationConverter(unittest.TestCase):
     def test_no_power(self):
         summand = summand_class.Summand('-3.78xyz')
         self.assertEqual(summand.get_sign(), '-')
-        summand.flip_self()
+        summand.flip_sign()
         self.assertEqual(summand.get_sign(), '+')
         self.assertEqual(summand.get_coefficient(), 3.78)
         self.assertEqual(summand.get_operand(), 'xyz')
@@ -42,7 +42,7 @@ class TestEquationConverter(unittest.TestCase):
     def test_multiple_power(self):
         summand = summand_class.Summand('-4.78x^2y^5z^8')
         self.assertEqual(summand.get_sign(), '-')
-        summand.flip_self()
+        summand.flip_sign()
         self.assertEqual(summand.get_sign(), '+')
         self.assertEqual(summand.get_coefficient(), 4.78)
         self.assertEqual(summand.get_operand(), 'x^2y^5z^8')
