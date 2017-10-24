@@ -5,8 +5,7 @@
 '''
 import argparse
 import sys
-import re
-
+from summand_class import Summand
 
 def is_input_readable(f):
     try:
@@ -27,18 +26,31 @@ def is_equation_legal(eq):
     return eq.count('=') == 1
 
 
-def is_summand_legal(summand):
+def parse_summands(s):
     '''
-    illegal: 9^2, ^8, x^2y^3
-    legal: 2x, x^3, 3.67yz^7
-    :param summand: legal string
-    :return: True/False
+    give a list of summands in the format of string
+    return the summands in a list of Summands
+    :param s: the string containing a number of summands
+    :return: a list of summands
     '''
-    pattern = '^[+-]?(\d+|\d+\.\d+)?([a-zA-z]+(\^\d*)?)?$'
-    if re.match(pattern, summand):
-        return True
-    else:
-        return False
+
+    # find the locations of operators
+    operator_indexes = []
+    for i in range(len(s)):
+        if s[i] in ['+', '-']:
+            operator_indexes.append(i)
+
+    # slice the string
+    summands = []
+    last_index = 0
+    for i in operator_indexes:
+        summand = s[last_index:i].strip()
+        last_index = i
+        if not summand.startswith('+') and not summand.startswith('-'):
+            summand = '+'+summand
+        summands.append(Summand(summand))
+    summands.append(Summand(s[last_index:]))
+    return summands
 
 
 def parse_one_equation(eq):
@@ -52,8 +64,7 @@ def parse_one_equation(eq):
 
     # break eq into left summands and right summands
     left, right = eq.split('=')
-    lsummands = left.strip().split
-
+    lsummands = parse_summands(left)
 
 
 if __name__ == '__main__':
