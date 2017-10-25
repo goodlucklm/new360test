@@ -24,14 +24,33 @@ class TestEquationConverter(unittest.TestCase):
 
     def test_flat_parentheses_no_starting_sign(self):
         s = '(5.6x-(7.5y-4.6z^7))'
-        s1 = ec.flat_parentheses(s)
+        s1 = ec.remove_parentheses(s)
         self.assertEqual(s1, '(5.6x-7.5y+4.6z^7)')
-        s2 = ec.flat_parentheses(s1)
+        s2 = ec.remove_parentheses(s1)
         self.assertEqual(s2, '5.6x-7.5y+4.6z^7')
 
+    def test_is_operand_identical(self):
+        self.assertEqual(ec.is_operand_identical('xy^76', 'xyz^100'), False)
 
+    def test_parse_one_equation_normal(self):
+        eq = "x^2 + 3.5xy + y = y^2 - xy + y"
+        expect = 'x^2+4.5xy-y^2=0'
+        self.assertEqual(ec.parse_one_equation(eq), expect)
 
+    def test_parse_one_equation_simple(self):
+        eq = "x = 1"
+        expect = 'x-1=0'
+        self.assertEqual(ec.parse_one_equation(eq), expect)
 
+    def test_parse_one_equation_with_parentheses(self):
+        eq = 'x - (y^2 - x) = 0'
+        expect = '2x-y^2=0'
+        self.assertEqual(ec.parse_one_equation(eq), expect)
+
+    def test_parse_on_equation_with_nested_parentheses(self):
+        eq = "x-(0-(0-x))=0"
+        expect = '0=0'
+        self.assertEqual(ec.parse_one_equation(eq), expect)
 
 if __name__ == '__main__':
     unittest.main()

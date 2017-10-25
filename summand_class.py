@@ -34,5 +34,18 @@ class Summand:
     def get_coefficient(self):
         return self.coefficient
 
+    def get_signed_coefficient(self):
+        return float(self.sign+str(self.coefficient))
+
     def get_operand(self):
         return self.operand
+
+    def get_current_form(self):
+        coeff = '' if self.coefficient == 1.0 else str(self.coefficient)
+        return self.sign+coeff+self.operand
+
+    def __str__(self):
+        return self.get_current_form()
+
+    def __repr__(self):
+        return self.get_current_form()

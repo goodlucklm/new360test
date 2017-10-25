@@ -5,15 +5,26 @@
 '''
 import argparse
 import sys
+
+import re
+
 from summand_class import Summand
 
 
-def is_input_readable(f):
+def ckeck_input_file(f):
     try:
         open(f, 'r')
     except IOError as ex:
-        print ex
+        print ex.message
         sys.exit(-1)
+
+
+def create_output_file(f):
+    try:
+        return open(f+'.out', 'w')
+    except IOError as ex:
+        print ex.message
+        sys.exit(-2)
 
 
 def are_parenthese_matched(eq):
@@ -81,7 +92,7 @@ def parse_summands(s):
     return summands
 
 
-def flat_parentheses(super_summand):
+def remove_parentheses(super_summand):
     '''
     remove one pair of parentheses by changing +/- accordingly
     does not support (x+y)^2
@@ -91,19 +102,16 @@ def flat_parentheses(super_summand):
     # find the first closing parenthese
     closing_parenthese_index = 0
     closing_parenthese_index = super_summand.find(')', closing_parenthese_index)
-    print 'closing parenthese is at', closing_parenthese_index
 
     # find the open parenthese that paired with the first closing parenthese
     i = closing_parenthese_index
     while i >= 0 and super_summand[i] != '(':
             i -= 1
     open_parenthese_index = i
-    print 'open parenthese is at', i
 
     # find the sign before open parenthese
     while i >= 0 and super_summand[i] not in ['+', '-']:
         i -= 1
-    print i, super_summand[i]
     if i < 0 and super_summand[i] not in ['+', '-']:
         sign = '+'
         inner_summand = super_summand[:closing_parenthese_index+1]
@@ -112,8 +120,6 @@ def flat_parentheses(super_summand):
         sign = super_summand[i]
         inner_summand = super_summand[i:closing_parenthese_index+1]
         sign_index = i
-    print 'sign is ', sign
-    print 'inner summand is', inner_summand
 
     # flip the signs of each summand base on the sign before open parenthese
     if sign == '-':
@@ -131,6 +137,16 @@ def flat_parentheses(super_summand):
     return super_summand[:sign_index] + inner_summand + super_summand[closing_parenthese_index+1:]
 
 
+def is_operand_identical(op1, op2):
+    '''
+    check if two operands are identical
+    only consider variables in the same order to be identical
+    same variable, same power, different order considered identical
+    :param op1: string
+    :param op2: string
+    :return: True/False
+    '''
+    return op1 == op2
 
 
 def parse_one_equation(eq):
@@ -144,7 +160,60 @@ def parse_one_equation(eq):
 
     # break eq into left summands and right summands
     left, right = eq.split('=')
-    lsummands = parse_summands(left)
+
+    # construct all summands
+    while '(' in left:
+        left = remove_parentheses(left)
+    while '(' in right:
+        right = remove_parentheses(right)
+    all_summands = parse_summands(left)
+    rsummands = parse_summands(right)
+    for summand in rsummands:
+        summand.flip_sign()
+        all_summands.append(summand)
+
+    # do calculations
+    final_summands = ''
+    while len(all_summands) > 0:
+        s = ''
+        coeff = all_summands[0].get_signed_coefficient()
+        operand = all_summands[0].get_operand()
+        j = 1
+        while j < len(all_summands):
+            if is_operand_identical(operand, all_summands[j].get_operand()):
+                coeff += all_summands[j].get_signed_coefficient()
+                all_summands.pop(j)
+            else:
+                j += 1
+        all_summands.pop(0)
+
+        # build the final summand
+        if coeff == 0.0:
+            continue
+
+        # format coefficient
+        if coeff % 1.0 == 0:
+            coeff_str = str(int(coeff))
+        else:
+            coeff_str = str(coeff)
+
+        if operand == '':
+            s += coeff_str
+        else:
+            if coeff == 1.0 and operand != '':
+                s = operand
+            elif coeff == -1.0 and operand != '':
+                s = '-'+operand
+            else:
+                s = coeff_str+operand
+        if coeff > 0:
+            s = '+'+s
+        final_summands += s
+    if final_summands == '':
+        final_summands += '0'
+    if final_summands.startswith('+'):
+        final_summands = final_summands[1:]
+    return final_summands + '=0'
 
 
 if __name__ == '__main__':
@@ -152,13 +221,39 @@ if __name__ == '__main__':
     """
     To enter interactive mode, invoke with no arguments
     Restrictions:
-    1. do not support (x + y)^2
-    2. do not support (+x - y) or (-x - z), the first summand in parentheses can not contain a sign
+    1. do not support (x + y)^2 \n
+    2. do not support (+x - y) or (-x - z), the first summand in parentheses can not contain a sign\n
+    3. only consider variables in the same order to be the same operand
+       e.g.: xyz^3 and yxz^3 are not considered equal (left room to fix this, can do it onsite)\n
+    4. output file will be created in the current working directory.
+       if cwd is not writable, exception will be raised
     """
-    parser = argparse.ArgumentParser(description='To enter interactive mode, invoke with no arguments',
-                                     prog='equation_converter')
+    parser = argparse.ArgumentParser(description=description, prog='equation_converter')
     parser.add_argument('-f', '--file', type=str, dest='filename')
     args = parser.parse_args()
 
     if args.filename:
-        is_input_readable(args.filename)
+        ckeck_input_file(args.filename)
+        output = create_output_file(args.filename)
+
+        input_equations = open(args.filename, 'r').readlines()
+        results = []
+        for equation in input_equations:
+            if equation.strip() != '':
+                result = parse_one_equation(equation.strip())
+                results.append(result)
+
+        s = ''
+        for result in results:
+            s += result + '\n'
+        output.write(s[:-1])
+        output.close()
+    else:
+        while True:
+            print 'Please input an equation:'
+            line = sys.stdin.readline()
+            if line.strip() == '':
+                continue
+            result = parse_one_equation(line)
+            print result
+
