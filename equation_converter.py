@@ -21,7 +21,7 @@ def ckeck_input_file(f):
 
 def create_output_file(f):
     try:
-        return open(f+'.out', 'w')
+        return open(f + '.out', 'w')
     except IOError as ex:
         print ex.message
         sys.exit(-2)
@@ -86,7 +86,7 @@ def parse_summands(s):
         summand = s[last_index:i].strip()
         last_index = i
         if not summand.startswith('+') and not summand.startswith('-'):
-            summand = '+'+summand
+            summand = '+' + summand
         summands.append(Summand(summand))
     summands.append(Summand(s[last_index:]))
     return summands
@@ -106,7 +106,7 @@ def remove_parentheses(super_summand):
     # find the open parenthese that paired with the first closing parenthese
     i = closing_parenthese_index
     while i >= 0 and super_summand[i] != '(':
-            i -= 1
+        i -= 1
     open_parenthese_index = i
 
     # find the sign before open parenthese
@@ -114,27 +114,27 @@ def remove_parentheses(super_summand):
         i -= 1
     if i < 0 and super_summand[i] not in ['+', '-']:
         sign = '+'
-        inner_summand = super_summand[:closing_parenthese_index+1]
+        inner_summand = super_summand[:closing_parenthese_index + 1]
         sign_index = 0
     else:
         sign = super_summand[i]
-        inner_summand = super_summand[i:closing_parenthese_index+1]
+        inner_summand = super_summand[i:closing_parenthese_index + 1]
         sign_index = i
 
     # flip the signs of each summand base on the sign before open parenthese
     if sign == '-':
         starting = inner_summand.find('(')
-        for i in range(starting, len(inner_summand)-1): # the last charactor is not going to be +/-
+        for i in range(starting, len(inner_summand) - 1):  # the last charactor is not going to be +/-
             if inner_summand[i] == '+':
-                inner_summand = inner_summand[:i] + '-' + inner_summand[i+1:]
+                inner_summand = inner_summand[:i] + '-' + inner_summand[i + 1:]
             elif inner_summand[i] == '-':
-                inner_summand = inner_summand[:i] + '+' + inner_summand[i+1:]
+                inner_summand = inner_summand[:i] + '+' + inner_summand[i + 1:]
 
     # remove parentheses
     inner_summand = inner_summand.replace('(', '', 1)
     inner_summand = inner_summand.replace(')', '', 1)
 
-    return super_summand[:sign_index] + inner_summand + super_summand[closing_parenthese_index+1:]
+    return super_summand[:sign_index] + inner_summand + super_summand[closing_parenthese_index + 1:]
 
 
 def is_operand_identical(op1, op2):
@@ -203,11 +203,11 @@ def parse_one_equation(eq):
             if coeff == 1.0 and operand != '':
                 s = operand
             elif coeff == -1.0 and operand != '':
-                s = '-'+operand
+                s = '-' + operand
             else:
-                s = coeff_str+operand
+                s = coeff_str + operand
         if coeff > 0:
-            s = '+'+s
+            s = '+' + s
         final_summands += s
     if final_summands == '':
         final_summands += '0'
@@ -218,22 +218,22 @@ def parse_one_equation(eq):
 
 if __name__ == '__main__':
     description = \
-    """\
-To enter interactive mode, invoke with no arguments
-    """
+        """\
+    To enter interactive mode, invoke with no arguments
+        """
     restriction = \
-    """
-Restrictions:
-1. does not support (x + y)^2 
-2. does not support (+x - y) or (-x - z), the first summand in parentheses can not contain a sign
-3. only considering variables in the same order to be the same operand e.g.: xyz^3 and yxz^3 are not considered equal (left room to fix this, can do it onsite)
-4. output file will be created in the current working directory. If cwd is not writable, exception will be raised
-    """
+        """
+    Restrictions:
+    1. does not support (x + y)^2 
+    2. does not support (+x - y) or (-x - z), the first summand in parentheses can not contain a sign
+    3. only considering variables in the same order to be the same operand e.g.: xyz^3 and yxz^3 are not considered equal (left room to fix this, can do it onsite)
+    4. output file will be created in the current working directory. If cwd is not writable, exception will be raised
+        """
     welcome = \
-    """
-Wellcome to equation converter 1.0 by Ming Lu Oct 2017
-    """
-    parser = argparse.ArgumentParser(description=description+restriction, prog='equation_converter')
+        """
+    Welcome to equation converter 1.0 by Ming Lu Oct 2017
+        """
+    parser = argparse.ArgumentParser(description=description + restriction, prog='equation_converter')
     parser.add_argument('-f', '--file', type=str, dest='filename')
     args = parser.parse_args()
 
@@ -269,4 +269,3 @@ Wellcome to equation converter 1.0 by Ming Lu Oct 2017
                 print ex.message
                 continue
             print result
-

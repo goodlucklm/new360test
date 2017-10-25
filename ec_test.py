@@ -52,5 +52,6 @@ class TestEquationConverter(unittest.TestCase):
         expect = '0=0'
         self.assertEqual(ec.parse_one_equation(eq), expect)
 
+
 if __name__ == '__main__':
     unittest.main()
