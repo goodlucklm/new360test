@@ -218,17 +218,22 @@ def parse_one_equation(eq):
 
 if __name__ == '__main__':
     description = \
+    """\
+To enter interactive mode, invoke with no arguments
     """
-    To enter interactive mode, invoke with no arguments
-    Restrictions:
-    1. do not support (x + y)^2 \n
-    2. do not support (+x - y) or (-x - z), the first summand in parentheses can not contain a sign\n
-    3. only consider variables in the same order to be the same operand
-       e.g.: xyz^3 and yxz^3 are not considered equal (left room to fix this, can do it onsite)\n
-    4. output file will be created in the current working directory.
-       if cwd is not writable, exception will be raised
+    restriction = \
     """
-    parser = argparse.ArgumentParser(description=description, prog='equation_converter')
+Restrictions:
+1. does not support (x + y)^2 
+2. does not support (+x - y) or (-x - z), the first summand in parentheses can not contain a sign
+3. only considering variables in the same order to be the same operand e.g.: xyz^3 and yxz^3 are not considered equal (left room to fix this, can do it onsite)
+4. output file will be created in the current working directory. If cwd is not writable, exception will be raised
+    """
+    welcome = \
+    """
+Wellcome to equation converter 1.0 by Ming Lu Oct 2017
+    """
+    parser = argparse.ArgumentParser(description=description+restriction, prog='equation_converter')
     parser.add_argument('-f', '--file', type=str, dest='filename')
     args = parser.parse_args()
 
@@ -249,11 +254,19 @@ if __name__ == '__main__':
         output.write(s[:-1])
         output.close()
     else:
+        print welcome, restriction
         while True:
             print 'Please input an equation:'
             line = sys.stdin.readline()
             if line.strip() == '':
                 continue
-            result = parse_one_equation(line)
+            if not is_equation_legal(line):
+                print 'Illegal equation.'
+                continue
+            try:
+                result = parse_one_equation(line)
+            except ValueError as ex:
+                print ex.message
+                continue
             print result
 
